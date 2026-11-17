@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Starting Soon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:#0c0f14;overflow:hidden;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff}
+  #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:#0c0f14}
+
+  /* The picture is enlarged slightly wider than the screen so the two small
+     buttons in its bottom-right corner fall outside the visible area. */
+  #img{position:absolute;left:0;top:-15px;width:109.4%;height:auto;display:block}
+
+  /* soft fade at the bottom so the timer stays readable */
+  .scrim{position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(6,10,18,0) 62%,rgba(6,10,18,.72) 100%)}
+
+  /* timer sits right under the cat */
+  .info{position:absolute;left:990px;transform:translateX(-50%);bottom:34px;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .label{font-size:26px;letter-spacing:14px;text-transform:uppercase;font-weight:500;color:rgba(255,255,255,.9);text-shadow:0 2px 14px rgba(0,0,0,.65);padding-left:14px}
+  .time{font-size:170px;line-height:1;font-weight:200;letter-spacing:-4px;font-variant-numeric:tabular-nums;text-shadow:0 4px 30px rgba(0,0,0,.65)}
+  .time.go{color:#ffd24a;font-weight:400;letter-spacing:0;font-size:140px}
+  .line{width:520px;height:3px;background:rgba(255,255,255,.25);margin-top:8px;border-radius:2px;overflow:hidden}
+  .line i{display:block;height:100%;width:0;background:#fff;transition:width 1s linear}
+
+  .hint{display:none;position:absolute;left:0;right:0;top:420px;text-align:center;color:#8a94a6;font-size:30px;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="img" src="cat.jpg" alt="" onerror="this.style.display='none';document.getElementById('hint').style.display='block'">
+  <div class="scrim"></div>
+  <div class="hint" id="hint">Save your picture as<br><b>cat.jpg</b><br>in the same folder as this file</div>
+
+  <div class="info">
+    <div class="label">Starting soon</div>
+    <div class="time" id="time">5:00</div>
+    <div class="line"><i id="bar"></i></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var q = new URLSearchParams(location.search);
+  var minutes = parseFloat(q.get('minutes')); if(!(minutes>0)) minutes = 5;
+  if(q.get('img')) document.getElementById('img').src = q.get('img');
+  var total = Math.round(minutes*60), left = total;
+
+  var stage = document.getElementById('stage');
+  function fit(){
+    var s = Math.min(innerWidth/1920, innerHeight/1080);
+    stage.style.transform = 'scale('+s+')';
+    stage.style.left = ((innerWidth-1920*s)/2)+'px';
+    stage.style.top = ((innerHeight-1080*s)/2)+'px';
+  }
+  addEventListener('resize', fit); fit();
+
+  var t = document.getElementById('time'), bar = document.getElementById('bar');
+  function draw(){
+    if(left<=0){ t.textContent = "Let's go"; t.className='time go'; bar.style.width='100%'; return; }
+    var m = Math.floor(left/60), s = left%60;
+    t.textContent = m+':'+(s<10?'0':'')+s;
+    bar.style.width = ((total-left)/total*100)+'%';
+  }
+  draw();
+  setInterval(function(){ if(left>0){ left--; draw(); } }, 1000);
+})();
+</script>
+</body>
+</html>
